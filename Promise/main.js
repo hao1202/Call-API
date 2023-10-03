@@ -103,18 +103,46 @@ const promise3 = new Promise((resolve, reject) => {
     httpGetAsync('https://picsum.photos/200/300', resolve);
 });
 
-currentPromise
-    .then((data) => {
-        document.getElementById('img_1').setAttribute('src', data.responseURL);
-        return promise2;
-    })
-    .then(data => {
-        document.getElementById('img_2').setAttribute('src', data.responseURL);
-        return promise3;
-    })
-    .then(data => {
-        document.getElementById('img_3').setAttribute('src', data.responseURL);
-    })
-    .catch(err => {
-        console.log(err);
-    })
+// chaining
+// currentPromise
+//     .then((data) => {
+//         document.getElementById('img_1').setAttribute('src', data.responseURL);
+//         return promise2;
+//     })
+//     .then(data => {
+//         document.getElementById('img_2').setAttribute('src', data.responseURL);
+//         return promise3;
+//     })
+//     .then(data => {
+//         document.getElementById('img_3').setAttribute('src', data.responseURL);
+//     })
+//     .catch(err => {
+//         console.log(err);
+//     })
+
+
+/*
+    Asyn / Await
+    Đơn giản cũng chỉ là 1 cái promise thôi 
+    Khi mà sử dụng thì giúp cho code của chúng ta khi viết bất đồng bộ trông như đồng bộ
+    Dễ dàng đoc hiểu hơn
+*/
+
+const executeAsyn = async () => {
+    // Khi dong lenh nay xong thi moi thuc thi dong lenh tiep theo
+    // Sử dụng await trước mỗi promise
+    // Xử lí lỗi bọc nó bằng một try catch
+    try {
+        const res_1 = await currentPromise;
+        document.getElementById('img_1').setAttribute('src', res_1.responseURL);
+
+        const res_2 = await promise2;
+        document.getElementById('img_2').setAttribute('src', res_2.responseURL);
+
+        const res_3 = await promise3;
+        document.getElementById('img_3').setAttribute('src', res_3.responseURL);
+    } catch (error) {
+        console.log(error);
+    }
+}
+executeAsyn();
