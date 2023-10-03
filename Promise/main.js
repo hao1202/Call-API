@@ -27,37 +27,47 @@
 */
 
 // callAPI
-function httpGetAsync(theUrl, callback) {
-    const xmlHttp = new XMLHttpRequest();
-    xmlHttp.onreadystatechange = () => {
-        if (xmlHttp.readyState === 4 && xmlHttp.status === 200) {
-            callback(xmlHttp);
-        }
-    };
-    xmlHttp.open("GET", theUrl, true);
-    xmlHttp.send(null);
-}
-httpGetAsync('https://picsum.photos/200/300', (data) => {
-    console.log(data);
-});
+// function httpGetAsync(theUrl, callback) {
+//     const xmlHttp = new XMLHttpRequest();
+//     xmlHttp.onreadystatechange = () => {
+//         if (xmlHttp.readyState === 4 && xmlHttp.status === 200) {
+//             callback(xmlHttp);
+//         }
+//     };
+//     xmlHttp.open("GET", theUrl, true);
+//     xmlHttp.send(null);
+// }
+// httpGetAsync('https://picsum.photos/200/300', (data) => {
+//     console.log(data);
+// });
 /*
     Nhưng dùng callback lại xảy ra một trường hơp đó là callback hell
     => Tạo ra những đoạn code nồng vào nhau rất khó để bảo trì sau này
     Để xử lí vấn đề này người ta dùng promise
 */
-httpGetAsync('https://picsum.photos/200/300', (data) => {
-    document.getElementById('img_1').setAttribute('src', data.responseURL);
-    httpGetAsync('https://picsum.photos/200/300', (data) => {
-        document.getElementById('img_2').setAttribute('src', data.responseURL);
-        httpGetAsync('https://picsum.photos/200/300', (data) => {
-            document.getElementById('img_3').setAttribute('src', data.responseURL);
-        });
-    });
-})
+// httpGetAsync('https://picsum.photos/200/300', (data) => {
+//     document.getElementById('img_1').setAttribute('src', data.responseURL);
+//     httpGetAsync('https://picsum.photos/200/300', (data) => {
+//         document.getElementById('img_2').setAttribute('src', data.responseURL);
+//         httpGetAsync('https://picsum.photos/200/300', (data) => {
+//             document.getElementById('img_3').setAttribute('src', data.responseURL);
+//         });
+//     });
+// })
 
 
 
-
+// Promise giúp viết các đoạn code không đồng bộ giống đồng bộ hơn
+// Đại diện cho một cái object thực hiện cái hành động bất đồng bộ thành công hay thất bại
+/*
+        Có 3 trạng thái 
+        - pending
+        - fulfilled (resovle)
+        - rejected (reject)
+        VD: Sủ dụng promise cho việc gọi API để lấy dữ liệu 
+        bạn sẽ tạo một đối tượng Promise đại diện cho data lấy
+        từ API
+*/
 // Khởi tạo promise bằng class có sẵn Promise
 const promise = new Promise(
     /*
@@ -70,3 +80,41 @@ const promise = new Promise(
     }
 );
 
+function httpGetAsync(theUrl, resolve) {
+    const xmlHttp = new XMLHttpRequest();
+    xmlHttp.onreadystatechange = () => {
+        if (xmlHttp.readyState === 4 && xmlHttp.status === 200) {
+            resolve(xmlHttp);
+        }
+    };
+    xmlHttp.open("GET", theUrl, true);
+    xmlHttp.send(null);
+}
+
+const currentPromise = new Promise((resolve, reject) => {
+    httpGetAsync('https://picsum.photos/200/300', resolve);
+});
+
+const promise2 = new Promise((resolve, reject) => {
+    httpGetAsync('https://picsum.photos/200/300', resolve);
+});
+
+const promise3 = new Promise((resolve, reject) => {
+    httpGetAsync('https://picsum.photos/200/300', resolve);
+});
+
+currentPromise
+    .then((data) => {
+        document.getElementById('img_1').setAttribute('src', data.responseURL);
+        return promise2;
+    })
+    .then(data => {
+        document.getElementById('img_2').setAttribute('src', data.responseURL);
+        return promise3;
+    })
+    .then(data => {
+        document.getElementById('img_3').setAttribute('src', data.responseURL);
+    })
+    .catch(err => {
+        console.log(err);
+    })
